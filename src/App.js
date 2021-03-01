@@ -1,31 +1,39 @@
-import './App.css';
-import { Switch, Route } from 'react-router-dom';
-import Container from './components/Container';
-import AppBar from './components/AppBar';
-import HomePage from './views/HomePage/HomePage';
-import MovieDetailsPage from './views/MovieDetailsPage/MovieDetailsPage';
-import MoviesPage from './views/MoviesPage/MoviesPage';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { lazy, Suspense } from 'react';
+import { Route, Switch } from 'react-router-dom';
+import Nav from './components/AppBar/Nav';
+import routes from './routes';
+import NotFoundView from './views/NotFoundView';
+import Loader from './components/Loader/Loader';
+import s from './index.css';
 
-function App() {
-  return (
-    <Container>
-      <AppBar />
-      <ToastContainer />
+const HomeView = lazy(() =>
+  import('./views/HomeView.js' /* webpackChunkName: "home-view" */),
+);
+
+const SearchMovieView = lazy(() =>
+  import(
+    './views/SearchMovieView.js' /* webpackChunkName: "search-movies-view" */
+  ),
+);
+
+const MoviesDetailsView = lazy(() =>
+  import(
+    './views/MoviesDetailsView.js' /* webpackChunkName: "movies-details-view" */
+  ),
+);
+
+const App = () => (
+  <div className={s.container}>
+    <Nav />
+    <Suspense fallback={<Loader />}>
       <Switch>
-        <Route path="/" exact>
-          <HomePage />
-        </Route>
-        <Route path="/movies" exact>
-          <MoviesPage />
-        </Route>
-        <Route path="/movies/:movieId">
-          <MovieDetailsPage />
-        </Route>
+        <Route exact path={routes.home} component={HomeView} />
+        <Route exact path={routes.movies} component={SearchMovieView} />
+        <Route path={routes.movieId} component={MoviesDetailsView} />
+        <Route component={NotFoundView} />
       </Switch>
-    </Container>
-  );
-}
+    </Suspense>
+  </div>
+);
 
 export default App;
